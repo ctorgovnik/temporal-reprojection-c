@@ -1,4 +1,4 @@
-#ifndef MOTION_VECTOR_ESTIMATION_H
+#ifndef REPROJECTION_H
 #define REPROJECTION_H
 #include <array>
 #include <vector>
@@ -6,6 +6,8 @@
 
 // Define the motion vector type for clarity
 using MotionVector = std::tuple<std::pair<int, int>, std::pair<int, int>>; // ((x, y), (dx, dy))
+using Frame = std::vector<std::vector<std::vector<float>>>;
+
 
 class Reprojection{
 
@@ -21,7 +23,7 @@ private:
      * @param x x position of pixel in consideration
      * @return 4 coordinates corresponding to 4 nearest non-zero neighbors
     */
-    std::vector<std::array<int, 2>> findNonZeroNeighbors(const std::vector<std::vector<std::vector<float>>>& frame, int y, int x);
+    std::vector<std::array<int, 2>> findNonZeroNeighbors(const Frame& frame, int y, int x);
 
     /**
      * computes safe inverse of distance, avoiding division by zero
@@ -45,7 +47,7 @@ private:
      * @return interpolated pixel with non-zero value
     */
     std::array<float, 3> bilinearInterpolation(
-        const std::vector<std::vector<std::vector<float>>>& frame, 
+        const Frame& frame, 
         int y,
         int x, 
         const std::array<int, 2>& topLeft, 
@@ -60,7 +62,7 @@ private:
      * @param frame matrix of frame's pixels. height x width x 3
      * @return a frame where every pixel has a non-zero value
     */
-    std::vector<std::vector<std::vector<float>>> fillInZeros(const std::vector<std::vector<std::vector<float>>>& frame);
+    Frame fillInZeros(const Frame& frame);
 
 
 public:
@@ -73,8 +75,8 @@ public:
      * @param blockSize size of each block. partitions matrix into blockSize x blockSize x 3 blocks
      * @return a new frame from warping past frame's pixels
     */
-    std::vector<std::vector<std::vector<float>>> reproject(
-        const std::vector<std::vector<std::vector<float>>>& lastFrame, 
+    Frame reproject(
+        const Frame& lastFrame, 
         const std::vector<std::vector<MotionVector>>& motionVectors, 
         int blockSize
     );
