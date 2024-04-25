@@ -57,16 +57,7 @@ std::vector<std::vector<MotionVector>> MotionVectorEstimation::estimateMotionVec
     int searchRange){
 
         int rows = prevFrame.rows;
-        int cols = prevFrame.cols;
-
-        // cout << prevFrame.size() << endl;
-        // for (int i = 0; i < rows; i++){
-        //     for ( int j = 0; i < cols; j++){
-        //         cout << "arbitrary channel values of prevFrame" << endl;
-        //         cout << prevFrame.at<cv::Vec3f>(i, j)[0] << ", " << prevFrame.at<cv::Vec3f>(i, j)[1] <<", " << prevFrame.at<cv::Vec3f>(i, j)[2]<<endl;
-        //     }
-        // }
-        
+        int cols = prevFrame.cols;   
 
         int vectorRows = std::ceil(static_cast<float>(rows) / blockSize);
         int vectorCols = std::ceil(static_cast<float>(cols) / blockSize);
@@ -137,8 +128,7 @@ vector<vector<MotionVector>> MotionVectorEstimation::estimateMotionVectorsPyrami
             pyramidMotionVectors[level] = estimateMotionVectors(
                 prevPyramid[level], currPyramid[level], adjustedBlockSize, adjustedSearchRange);
 
-        // Optionally, implement warping and refinement of motion vectors for this level based on the vectors from coarser levels
-        // This step is crucial for leveraging the hierarchical structure
+
         }
 
         return pyramidMotionVectors[0];

@@ -10,80 +10,6 @@ using namespace std;
 
 vector<array<int, 2>> Reprojection::findNonZeroNeighbors(const cv::Mat& frame, int y, int x){
 
-
-//     int height = frame.rows;
-//     int width = frame.cols;
-
-//     array<int, 2> topLeft{};
-//     array<int, 2> topRight{};
-//     array<int, 2> bottomLeft{};
-//     array<int, 2> bottomRight{};
-
-
-//     while(true){
-
-//         if (topLeft[0] + y > 0 && topLeft[1] + x > 0 && 
-//         frame.at<cv::Vec3b>(topLeft[0] + y, topLeft[1] + x)[0] == 0 && 
-//         frame.at<cv::Vec3b>(topLeft[0] + y, topLeft[1] + x)[1] == 0 && 
-//         frame.at<cv::Vec3b>(topLeft[0] + y, topLeft[1] + x)[2] == 0){
-            
-//             cout << frame.at<cv::Vec3b>(topRight[0] + y, topRight[1] + x)[0] << endl;
-
-//             topLeft[0] -= 1;
-//             topLeft[1] -= 1;
-//             continue;
-
-//         }
-
-//         if (topRight[0] + y > 0 && topRight[1] + x < width - 1 && 
-//         frame.at<cv::Vec3b>(topRight[0] + y, topRight[1] + x)[0] == 0 && 
-//         frame.at<cv::Vec3b>(topRight[0] + y, topRight[1] + x)[1] == 0 && 
-//         frame.at<cv::Vec3b>(topRight[0] + y, topRight[1] + x)[2] == 0){
-
-//             topRight[0] -= 1;
-//             topRight[1] += 1;
-//             continue;
-
-//         }
-
-//         if (bottomLeft[0] + y < height - 1 && bottomLeft[1] + x > 0 && 
-//         frame.at<cv::Vec3b>(bottomLeft[0] + y, bottomLeft[1] + x)[0] == 0 && 
-//         frame.at<cv::Vec3b>(bottomLeft[0] + y, bottomLeft[1] + x)[1] == 0 && 
-//         frame.at<cv::Vec3b>(bottomLeft[0] + y, bottomLeft[1] + x)[2] == 0){
-
-//             bottomLeft[0] += 1;
-//             bottomLeft[1] -= 1;
-//             continue;
-
-//         }
-
-//         if (bottomRight[0] + y < height - 1 && bottomRight[1] + x < width - 1 && 
-//         frame.at<cv::Vec3b>(bottomRight[0] + y, bottomRight[1] + x)[0] == 0 && 
-//         frame.at<cv::Vec3b>(bottomRight[0] + y, bottomRight[1] + x)[1] == 0 && 
-//         frame.at<cv::Vec3b>(bottomRight[0] + y, bottomRight[1] + x)[2] == 0){
-
-//             bottomRight[0] += 1;
-//             bottomRight[1] += 1;
-//             continue;
-
-//         }
-     
-
-//         break;
-        
-//     }
-
-//     vector<array<int, 2>> nonZeroNeighbors;
-
-//     nonZeroNeighbors.push_back(topLeft);
-//     nonZeroNeighbors.push_back(topRight);
-//     nonZeroNeighbors.push_back(bottomLeft);
-//     nonZeroNeighbors.push_back(bottomRight);
-
-//     return nonZeroNeighbors;
-
-// }
-
     int height = frame.rows;
     int width = frame.cols;
     vector<array<int, 2>> nonZeroNeighbors(4, {0, 0}); // Pre-fill with default values
@@ -173,9 +99,6 @@ cv::Vec3b Reprojection::interpolateFromKernel(const cv::Mat& frame, int y, int x
     vector<cv::Vec3b> nonZeroPixels;
     // Define bounds for the kernel
     int startY, endY, startX, endX;
-    // int endY = min(frame.rows, y + halfSize + 1);
-    // int startX = max(0, x - halfSize);
-    // int endX = min(frame.cols, x + halfSize + 1);
 
     while(nonZeroPixels.size() < 4){
         startY = (0, y - halfSize);
@@ -254,20 +177,6 @@ void Reprojection::fillInZeros(cv::Mat& frame){
 
     }
 
-    // for (int row = 0; row < height; row++){
-    //     for (int col = 0; col < width; col++){
-    //         if (frame.at<cv::Vec3b>(row, col)[0] == 0 && 
-    //             frame.at<cv::Vec3b>(row, col)[1]  == 0 &&
-    //             frame.at<cv::Vec3b>(row, col)[2]  == 0){
-
-    //             frame.at<cv::Vec3b>(row,col) = interpolateFromKernel(frame, row, col);
-
-    //             }
-    //     }
-    // }
-
-
-
 }
 
 void checkZeros(const cv::Mat& frame) {
@@ -287,8 +196,7 @@ void checkZeros(const cv::Mat& frame) {
 
             // Check if all three channels of the pixel are zero
             if (pixel[0] == 0 && pixel[1] == 0 && pixel[2] == 0) {
-                // Print the indices of the pixel
-                // std::cout << "Zero pixel found at: (" << row << ", " << col << ")" << std::endl;
+               
                 zeroCount += 1;
             }
         }
@@ -303,7 +211,6 @@ cv::Mat Reprojection::reproject(const cv::Mat& lastFrame,
 
             cv::Mat newFrame = cv::Mat::zeros(lastFrame.size(), lastFrame.type());
 
-            // cout << newFrame.at<cv::Vec3f>(0, 0).channels << endl;
             
 
             
@@ -315,20 +222,9 @@ cv::Mat Reprojection::reproject(const cv::Mat& lastFrame,
                     }
                     const MotionVector& mv = motionVectors[row][col];
 
-                    // int y = get<0>(mv).first;
-                    // int x = get<0>(mv).second;
-                    // int dy = get<1>(mv).first;
-                    // int dx = get<1>(mv).second;
-
                     auto start = get<0>(mv);
                     auto displacement = get<1>(mv);
 
-
-
-                    // cout << "Origin: " <<start.first << ", " << start.second << endl << "Displacement: "<< displacement.first << ", " << displacement.second << endl;
-
-                    // int newPositionY = y + dy;
-                    // int newPositionX = x + dx;
                     int startY = start.first, startX = start.second;
                     int endY = startY + displacement.first, endX = startX + displacement.second;
 
@@ -341,9 +237,6 @@ cv::Mat Reprojection::reproject(const cv::Mat& lastFrame,
                         cv::Rect dstRect(endX, endY, blockSize, blockSize);
 
                         dstRect = dstRect & cv::Rect(0, 0, lastFrame.cols, lastFrame.rows);
-                        // cout << "or here" << endl;
-                        // cout << "srcRect: " << srcRect << ", lastFrame dims: (" << lastFrame.cols << ", " << lastFrame.rows << ")" << endl;
-                        // cout << "dstRect: " << dstRect << ", newFrame dims: (" << newFrame.cols << ", " << newFrame.rows << ")" << endl;
 
                         if (0 <= srcRect.x && 0 <= srcRect.y &&
                         srcRect.x + srcRect.width < lastFrame.cols &&
@@ -367,7 +260,7 @@ cv::Mat Reprojection::reproject(const cv::Mat& lastFrame,
                         }
 
 
-                            // }
+                        
                         }
                     }
 
