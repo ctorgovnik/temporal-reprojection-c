@@ -2,6 +2,8 @@
 #define MOTIONVECTORESTIMATION_H
 #include <vector>
 #include <tuple>
+#include <opencv2/opencv.hpp>
+
 
 using MotionVector = std::tuple<std::pair<int, int>, std::pair<int, int>>; // ((x, y), (dx, dy))
 using GrayFrame = std::vector<std::vector<float>>;
@@ -19,8 +21,8 @@ private:
      * 
     */
     float computeMad(
-        const GrayFrame& prevBlock, 
-        const GrayFrame& currBlock
+        const cv::Mat& prevBlock, 
+        const cv::Mat& currBlock
     ); 
 
     /**
@@ -32,7 +34,15 @@ private:
      *@param blockSize size of blocks
      *@return a blockSize x blockSize matrix from frame
     */
-    GrayFrame getBlock(const GrayFrame& frame, int startRow, int startCol, int blockSize);
+    cv::Mat getBlock(const cv::Mat& frame, int startRow, int startCol, int blockSize);
+
+    std::vector<cv::Mat> buildResolutionPyramid(const cv::Mat& frame, int levels);
+
+    cv::Mat warpFrame(const cv::Mat& frame, const std::vector<std::vector<MotionVector>>& motionVectors, int blockSize);
+
+    void workerFunction(const cv::Mat& prevFrame, const cv::Mat& currFrame, 
+                                            int blockSize, int searchRange,
+                                            int startRow, int endRow, std::vector<std::vector<MotionVector>>& motionVectors);
 
 public:
 
@@ -46,11 +56,30 @@ public:
      * @return matrix of motion vectors corresponding to each blocks movement from prevFrame to currFrame. height x width x 2. Each entry contains two tuples: [(y_0, x_0), (dy, dx)]
     */
     std::vector<std::vector<MotionVector>> estimateMotionVectors(
-        const GrayFrame& prevFrame, 
-        const GrayFrame& currFrame, 
+        const cv::Mat& prevFrame, 
+        const cv::Mat& currFrame, 
         int blockSize=16, 
         int searchRange=2
     ); 
+
+    std::vector<std::vector<MotionVector>> estimateMotionVectorsPyramid(
+        const cv::Mat& prevFrame, 
+        const cv::Mat& currFrame, 
+        int blockSize, 
+        int searchRange, 
+        int levels
+    );
+
+
+    std::vector<std::vector<MotionVector>> estimateAndRefineMotionVectors(
+    const cv::Mat& prevFrame, 
+    const cv::Mat& currFrame, 
+    int blockSize, 
+    int searchRange, 
+    int levels);
+
+
+    
 
 
 };

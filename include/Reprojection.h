@@ -3,6 +3,8 @@
 #include <array>
 #include <vector>
 #include <tuple>
+#include <opencv2/opencv.hpp>
+
 
 // Define the motion vector type for clarity
 using MotionVector = std::tuple<std::pair<int, int>, std::pair<int, int>>; // ((x, y), (dx, dy))
@@ -23,7 +25,7 @@ private:
      * @param x x position of pixel in consideration
      * @return 4 coordinates corresponding to 4 nearest non-zero neighbors
     */
-    std::vector<std::array<int, 2>> findNonZeroNeighbors(const Frame& frame, int y, int x);
+    std::vector<std::array<int, 2>> findNonZeroNeighbors(const cv::Mat& frame, int y, int x);
 
     /**
      * computes safe inverse of distance, avoiding division by zero
@@ -46,8 +48,8 @@ private:
      * @param bottomRight coordinate of bottom right non-zero neighbor. Array of dim 2: (y, x)
      * @return interpolated pixel with non-zero value
     */
-    std::array<float, 3> bilinearInterpolation(
-        const Frame& frame, 
+    cv::Vec3b bilinearInterpolation(
+        const cv::Mat& frame, 
         int y,
         int x, 
         const std::array<int, 2>& topLeft, 
@@ -59,12 +61,15 @@ private:
     /**
      * fills in all zero pixels by performing bilinear interpolation
      * 
-     * @param frame matrix of frame's pixels. height x width x 3
-     * @return a frame where every pixel has a non-zero value
+     * @param frame reference to matrix of frame's pixels. height x width x 3
     */
-    Frame fillInZeros(const Frame& frame);
+    void fillInZeros(cv::Mat& frame);
 
+    float gaussianWeight(float distance, float sigma);
 
+    void processBlock(cv::Mat& frame, int startRow, int endRow, int width);
+
+    cv::Vec3b interpolateFromKernel(const cv::Mat& frame, int y, int x, int kernelSize);
 public:
 
     /**
@@ -75,8 +80,8 @@ public:
      * @param blockSize size of each block. partitions matrix into blockSize x blockSize x 3 blocks
      * @return a new frame from warping past frame's pixels
     */
-    Frame reproject(
-        const Frame& lastFrame, 
+    cv::Mat reproject(
+        const cv::Mat& lastFrame, 
         const std::vector<std::vector<MotionVector>>& motionVectors, 
         int blockSize
     );

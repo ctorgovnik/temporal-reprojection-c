@@ -5,7 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/include",
-                "C:/Users/LabUser/Desktop/temporal_foveated_rendering/cody-torgovnik/googletest/build"
+                "C:/Users/LabUser/Desktop/temporal_foveated_rendering/cody-torgovnik/googletest/build",
+                "/opt/homebrew/opt/opencv/include/opencv4"
             ],
             "defines": [
                 "_DEBUG",
